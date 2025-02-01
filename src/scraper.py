@@ -32,19 +32,28 @@ def scrape_real_estate(api_key):
         ]
     }
     
+    # Log the schema
+    schema = ExtractSchema.model_json_schema()
+    logging.info(f'Using schema: {json.dumps(schema, indent=2)}')
+    
     # Make the API request
     logging.info('Sending extraction request to Firecrawl API')
     try:
-        data = app.extract(
-            [
-                "https://loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/*",
-                "https://www.showcase.com/ny/new-york/commercial-real-estate/for-rent/*"
-            ],
-            {
-                'prompt': 'Ensure that the address is always included for each commercial real estate listing. Extract the number of units available, square footage, URL of the listing, contact information, and price.',
-                'schema': ExtractSchema.model_json_schema()
-            }
-        )
+        try:
+            data = app.extract(
+                [
+                    "https://loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/*",
+                    "https://www.showcase.com/ny/new-york/commercial-real-estate/for-rent/*"
+                ],
+                {
+                    'prompt': 'Ensure that the address is always included for each commercial real estate listing. Extract the number of units available, square footage, URL of the listing, contact information, and price.',
+                    'schema': ExtractSchema.model_json_schema()
+                }
+            )
+        except Exception as api_error:
+            logging.error(f'Error during Firecrawl API call: {str(api_error)}')
+            logging.error(f'API error type: {type(api_error)}')
+            raise
         logging.info('Successfully received response from Firecrawl API')
         logging.info(f'Raw response data: {data}')
         
