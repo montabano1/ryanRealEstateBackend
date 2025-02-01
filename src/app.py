@@ -5,7 +5,14 @@ import json
 import os
 import time
 import threading
+import logging
 from datetime import datetime
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 # Global variables to track scraping status
 scraping_status = {
@@ -38,6 +45,7 @@ def run_scraper():
     """Run the scraper in a separate thread"""
     global scraping_status
     try:
+        logging.info('Starting scraper with API key: %s', scraping_status.get('api_key')[:8] + '...')
         scraping_status['is_scraping'] = True
         data = scrape_real_estate(scraping_status.get('api_key'))
         
@@ -46,8 +54,10 @@ def run_scraper():
         os.makedirs('data', exist_ok=True)
         filename = f'data/raw_data_{timestamp}.json'
         
+        logging.info('Saving data to %s', filename)
         with open(filename, 'w') as f:
             json.dump(data, f, indent=2)
+        logging.info('Data saved successfully')
             
         scraping_status['current_data'] = True
     except Exception as e:
