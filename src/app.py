@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
-from .scraper import scrape_real_estate
+from scraper import scrape_real_estate
 import json
 import os
 import time
