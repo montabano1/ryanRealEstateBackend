@@ -7,8 +7,10 @@ import os
 
 class NestedModel1(BaseModel):
     address: str = Field(alias='location')  # Map location to address
+    number_of_units: float = Field(default=0)  # Default to 0
     square_footage: str = Field(default='N/A')  # Default to N/A
     url: str = Field(default=None)
+    contact_info: str = Field(default='N/A')  # Default to N/A
     price: str = Field(default='N/A')  # Default to N/A
 
 class ExtractSchema(BaseModel):
@@ -40,11 +42,10 @@ def scrape_real_estate(api_key):
         try:
             data = app.extract(
                 [
-                    # More specific URL to get fewer results
-                    "https://www.loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/2/"
+                    "https://www.loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/"
                 ],
                 {
-                    'prompt': 'Extract the featured commercial real estate listings. For each listing, extract only these fields: address (required), price, square footage, and listing URL.',
+                    'prompt': 'Extract all commercial real estate listings. For each listing, get the address, number of units available, square footage, URL, contact information, and price.',
                     'schema': ExtractSchema.model_json_schema()
                 }
             )
@@ -53,12 +54,6 @@ def scrape_real_estate(api_key):
             logging.error(f'API error type: {type(api_error)}')
             raise
         logging.info('Successfully received response from Firecrawl API')
-        
-        # Limit to first 5 listings if we have more
-        if 'data' in data and 'listings' in data['data']:
-            data['data']['listings'] = data['data']['listings'][:5]
-            logging.info(f'Limited to first 5 listings')
-        
         logging.info(f'Raw response data: {data}')
         
         # Check the structure of the response
