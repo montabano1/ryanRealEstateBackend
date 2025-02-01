@@ -45,10 +45,8 @@ def scrape_real_estate(api_key):
                     "https://loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/*"
                 ],
                 {
-                    'prompt': 'Extract only the first 5 commercial real estate listings. For each listing, get the address, price, square footage, and URL.',
-                    'schema': ExtractSchema.model_json_schema(),
-                    'max_results': 5,
-                    'max_tokens': 1000
+                    'prompt': 'Extract exactly 5 commercial real estate listings from the top of the page. For each listing, extract only these fields: address (required), price, square footage, and listing URL.',
+                    'schema': ExtractSchema.model_json_schema()
                 }
             )
         except Exception as api_error:
