@@ -17,14 +17,11 @@ scraping_status = {
 app = Flask(__name__)
 
 # Configure CORS for GitHub Pages
-CORS(app, resources={r"/api/*": {"origins": ["https://yourusername.github.io", "http://localhost:5000"]}}, supports_credentials=True)
-
-# Load environment variables
-from dotenv import load_dotenv
-load_dotenv()
-
-# Ensure the data directory exists
-os.makedirs('data', exist_ok=True)
+CORS(app, resources={r"/api/*": {"origins": [
+    "https://montabano1.github.io",
+    "http://localhost:5000",
+    "http://127.0.0.1:5000"
+]}}, supports_credentials=True)
 
 # Ensure the data directory exists
 os.makedirs('data', exist_ok=True)
