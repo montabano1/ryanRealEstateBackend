@@ -16,7 +16,10 @@ class NestedModel1(BaseModel):
 class ExtractSchema(BaseModel):
     listings: List[NestedModel1]
 
+import logging
+
 def scrape_real_estate(api_key):
+    logging.info('Starting real estate scraping process')
     app = FirecrawlApp(api_key=api_key)
     
     # Prepare the request payload
@@ -30,21 +33,38 @@ def scrape_real_estate(api_key):
     }
     
     # Make the API request
-    data = app.extract(
-        [
-            "https://loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/*",
-            "https://www.showcase.com/ny/new-york/commercial-real-estate/for-rent/*"
-        ],
-        {
-            'prompt': 'Ensure that the address is always included for each commercial real estate listing. Extract the number of units available, square footage, URL of the listing, contact information, and price.',
-            'schema': ExtractSchema.model_json_schema()
-        }
-    )
+    logging.info('Sending extraction request to Firecrawl API')
+    try:
+        data = app.extract(
+            [
+                "https://loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/*",
+                "https://www.showcase.com/ny/new-york/commercial-real-estate/for-rent/*"
+            ],
+            {
+                'prompt': 'Ensure that the address is always included for each commercial real estate listing. Extract the number of units available, square footage, URL of the listing, contact information, and price.',
+                'schema': ExtractSchema.model_json_schema()
+            }
+        )
+        logging.info('Successfully received response from Firecrawl API')
+        if 'data' in data and 'listings' in data['data']:
+            logging.info(f'Found {len(data["data"]["listings"])} listings')
+        else:
+            logging.warning('No listings found in API response')
+    except Exception as e:
+        logging.error(f'Error during API request: {str(e)}')
+        raise
     
     # Save raw data
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    with open(f'data/raw_data_{timestamp}.json', 'w') as f:
-        json.dump(data, f, indent=2)
+    filename = f'data/raw_data_{timestamp}.json'
+    logging.info(f'Saving data to {filename}')
+    try:
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=2)
+        logging.info('Data saved successfully')
+    except Exception as e:
+        logging.error(f'Error saving data: {str(e)}')
+        raise
     
     return data
 
