@@ -42,12 +42,13 @@ def scrape_real_estate(api_key):
         try:
             data = app.extract(
                 [
-                    "https://loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/*",
-                    "https://www.showcase.com/ny/new-york/commercial-real-estate/for-rent/*"
+                    "https://loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/*"
                 ],
                 {
-                    'prompt': 'Ensure that the address is always included for each commercial real estate listing. Extract the number of units available, square footage, URL of the listing, contact information, and price.',
-                    'schema': ExtractSchema.model_json_schema()
+                    'prompt': 'Extract only the first 5 commercial real estate listings. For each listing, get the address, price, square footage, and URL.',
+                    'schema': ExtractSchema.model_json_schema(),
+                    'max_results': 5,
+                    'max_tokens': 1000
                 }
             )
         except Exception as api_error:
