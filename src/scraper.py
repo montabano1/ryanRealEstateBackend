@@ -56,10 +56,6 @@ def scrape_real_estate(api_key):
                     'schema': ExtractSchema.model_json_schema()
                 }
             )
-            if not data:
-                logging.error('API returned empty data')
-                raise ValueError('API returned empty data')
-                
         except Exception as api_error:
             logging.error(f'Error during Firecrawl API call: {str(api_error)}')
             logging.error(f'API error type: {type(api_error)}')
@@ -68,22 +64,11 @@ def scrape_real_estate(api_key):
         logging.info('Successfully received response from Firecrawl API')
         logging.info(f'Raw response data: {data}')
         
-        # Check the structure of the response
-        if isinstance(data, dict):
-            logging.info(f'Response keys: {list(data.keys())}')
-            if 'data' in data:
-                logging.info(f'Data keys: {list(data["data"].keys())}')
-                if 'listings' in data['data']:
-                    listings = data['data']['listings']
-                    logging.info(f'Found {len(listings)} listings')
-                    if listings:
-                        logging.info(f'Sample listing: {listings[0]}')
-                else:
-                    logging.warning('No "listings" key in data')
-            else:
-                logging.warning('No "data" key in response')
-        else:
-            logging.warning(f'Unexpected response type: {type(data)}')
+        # Log basic response info
+        listings = data['data']['listings']
+        logging.info(f'Found {len(listings)} listings')
+        if listings:
+            logging.info(f'Sample listing: {listings[0]}')
     except Exception as e:
         logging.error(f'Error during API request: {str(e)}')
         raise
