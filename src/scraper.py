@@ -46,10 +46,24 @@ def scrape_real_estate(api_key):
             }
         )
         logging.info('Successfully received response from Firecrawl API')
-        if 'data' in data and 'listings' in data['data']:
-            logging.info(f'Found {len(data["data"]["listings"])} listings')
+        logging.info(f'Raw response data: {data}')
+        
+        # Check the structure of the response
+        if isinstance(data, dict):
+            logging.info(f'Response keys: {list(data.keys())}')
+            if 'data' in data:
+                logging.info(f'Data keys: {list(data["data"].keys())}')
+                if 'listings' in data['data']:
+                    listings = data['data']['listings']
+                    logging.info(f'Found {len(listings)} listings')
+                    if listings:
+                        logging.info(f'Sample listing: {listings[0]}')
+                else:
+                    logging.warning('No "listings" key in data')
+            else:
+                logging.warning('No "data" key in response')
         else:
-            logging.warning('No listings found in API response')
+            logging.warning(f'Unexpected response type: {type(data)}')
     except Exception as e:
         logging.error(f'Error during API request: {str(e)}')
         raise

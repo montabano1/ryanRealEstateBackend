@@ -147,23 +147,36 @@ def get_latest_data():
     try:
         # Get the latest data file
         data_dir = 'data'
+        logging.info(f'Looking for data files in {data_dir}')
         data_files = [f for f in os.listdir(data_dir) if f.startswith('raw_data_')]
+        logging.info(f'Found data files: {data_files}')
+        
         if not data_files:
+            logging.warning('No data files found')
             return jsonify({
                 'success': False,
                 'error': 'No data available'
             })
         
         latest_file = max(data_files, key=lambda x: os.path.getmtime(os.path.join(data_dir, x)))
+        logging.info(f'Loading latest file: {latest_file}')
+        
         with open(os.path.join(data_dir, latest_file), 'r') as f:
             data = json.load(f)
+            logging.info(f'Loaded data structure: {list(data.keys())}')
         
         # Get listings and convert location to address if needed
         listings = data.get('data', {}).get('listings', [])
+        logging.info(f'Found {len(listings)} listings in data')
+        
         for listing in listings:
             if 'location' in listing and 'address' not in listing:
                 listing['address'] = listing['location']
                 del listing['location']
+                
+        logging.info(f'Processed {len(listings)} listings for response')
+        if listings:
+            logging.info(f'Sample listing: {listings[0]}')
         
         return jsonify({
             'success': True,
@@ -178,4 +191,8 @@ def get_latest_data():
         }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--port', type=int, default=5001)
+    args = parser.parse_args()
+    app.run(debug=True, port=args.port)
