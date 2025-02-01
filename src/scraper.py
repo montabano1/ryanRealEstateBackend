@@ -27,8 +27,7 @@ def scrape_real_estate(api_key):
         'prompt': 'Ensure that the address is always included for each commercial real estate listing. Extract the number of units available, square footage, URL of the listing, contact information, and price.',
         'schema': ExtractSchema.model_json_schema(),
         'urls': [
-            "https://loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/*",
-            "https://www.showcase.com/ny/new-york/commercial-real-estate/for-rent/*"
+            "https://www.lee-associates.com/properties/?searchText=&propertyType=1&saleOrLease=lease",
         ]
     }
     
