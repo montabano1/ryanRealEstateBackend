@@ -40,8 +40,7 @@ def scrape_real_estate(api_key):
     try:
         # Log the request details
         request_urls = [
-            "https://www.loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/*",
-            "https://www.showcase.com/ny/new-york/commercial-real-estate/for-rent/*"
+            "https://www.lee-associates.com/properties/?searchText=&propertyType=1&saleOrLease=lease"
         ]
         request_prompt = 'Extract all commercial real estate listings. For each listing, get the address, number of units available, square footage, URL, contact information, and price.'
         logging.info(f'Making request to URLs: {request_urls}')
