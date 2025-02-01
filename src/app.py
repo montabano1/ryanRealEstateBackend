@@ -11,7 +11,10 @@ from datetime import datetime
 scraping_status = {
     'is_scraping': False,
     'current_data': None,
-    'error': None
+    'error': None,
+    'progress': 0,
+    'message': '',
+    'start_time': None
 }
 
 app = Flask(__name__)
@@ -32,63 +35,65 @@ os.makedirs('data', exist_ok=True)
 def index():
     return jsonify({'status': 'API is running'})
 
-def generate_progress():
-    """Generator function to yield real progress updates"""
+@app.route('/api/status')
+def get_progress():
+    """Get the current scraping progress"""
     global scraping_status
-    start_time = time.time()
-    last_progress = 0
     
-    while True:
-        if scraping_status['error']:
-            error_msg = f"Error: {scraping_status['error']}"
-            yield f'data: {json.dumps({"progress": last_progress, "message": error_msg, "error": True})}\n\n'
-            break
-            
-        elapsed_time = time.time() - start_time
-        
-        if elapsed_time < 2:
-            message = "Initializing scraper..."
-            progress = 5
-        elif elapsed_time < 5:
-            message = "Connecting to websites..."
-            progress = 15
-        elif elapsed_time < 10:
-            message = "Searching for properties..."
-            progress = 30
-        elif elapsed_time < 20:
-            message = "Fetching property listings..."
-            progress = 50
-        else:
-            message = "Processing data..."
-            progress = min(90, int(elapsed_time / 30 * 100))
-        
-        if scraping_status['current_data']:
-            yield f'data: {json.dumps({"progress": 100, "message": "Complete!", "done": True})}\n\n'
-            break
-            
-        if progress > last_progress:
-            yield f'data: {json.dumps({"progress": progress, "message": message})}\n\n'
-            last_progress = progress
-            
-        time.sleep(1)
-
-@app.route('/api/progress')
-def progress():
-    return Response(
-        generate_progress(),
-        mimetype='text/event-stream',
-        headers={
-            'Cache-Control': 'no-cache',
-            'Access-Control-Allow-Origin': '*',
-            'Connection': 'keep-alive'
-        }
-    )
+    if scraping_status['error']:
+        return jsonify({
+            'progress': scraping_status['progress'],
+            'message': f"Error: {scraping_status['error']}",
+            'error': True
+        })
+    
+    if scraping_status['current_data']:
+        return jsonify({
+            'progress': 100,
+            'message': 'Complete!',
+            'done': True
+        })
+    
+    if not scraping_status['is_scraping']:
+        return jsonify({
+            'progress': 0,
+            'message': 'Not started',
+            'done': False
+        })
+    
+    elapsed_time = time.time() - scraping_status['start_time'] if scraping_status['start_time'] else 0
+    
+    if elapsed_time < 2:
+        message = "Initializing scraper..."
+        progress = 5
+    elif elapsed_time < 5:
+        message = "Connecting to websites..."
+        progress = 15
+    elif elapsed_time < 10:
+        message = "Searching for properties..."
+        progress = 30
+    elif elapsed_time < 20:
+        message = "Fetching property listings..."
+        progress = 50
+    else:
+        message = "Processing data..."
+        progress = min(90, int(elapsed_time / 30 * 100))
+    
+    scraping_status['progress'] = progress
+    scraping_status['message'] = message
+    
+    return jsonify({
+        'progress': progress,
+        'message': message,
+        'done': False
+    })
 
 def run_scraper():
     """Run the scraper in a separate thread"""
     global scraping_status
     try:
         scraping_status['is_scraping'] = True
+        scraping_status['start_time'] = time.time()
         data = scrape_real_estate(scraping_status.get('api_key'))
         
         # Save the data with timestamp
