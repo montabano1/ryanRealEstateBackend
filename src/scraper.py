@@ -39,19 +39,31 @@ def scrape_real_estate(api_key):
     # Make the API request
     logging.info('Sending extraction request to Firecrawl API')
     try:
+        # Log the request details
+        request_urls = [
+            "https://www.loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/*",
+            "https://www.showcase.com/ny/new-york/commercial-real-estate/for-rent/*"
+        ]
+        request_prompt = 'Extract all commercial real estate listings. For each listing, get the address, number of units available, square footage, URL, contact information, and price.'
+        logging.info(f'Making request to URLs: {request_urls}')
+        logging.info(f'Using prompt: {request_prompt}')
+        
         try:
             data = app.extract(
-                [
-                    "https://www.loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/"
-                ],
+                request_urls,
                 {
-                    'prompt': 'Extract all commercial real estate listings. For each listing, get the address, number of units available, square footage, URL, contact information, and price.',
+                    'prompt': request_prompt,
                     'schema': ExtractSchema.model_json_schema()
                 }
             )
+            if not data:
+                logging.error('API returned empty data')
+                raise ValueError('API returned empty data')
+                
         except Exception as api_error:
             logging.error(f'Error during Firecrawl API call: {str(api_error)}')
             logging.error(f'API error type: {type(api_error)}')
+            logging.error(f'API error details: {api_error.__dict__ if hasattr(api_error, "__dict__") else "No details available"}')
             raise
         logging.info('Successfully received response from Firecrawl API')
         logging.info(f'Raw response data: {data}')
