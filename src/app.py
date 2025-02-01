@@ -7,14 +7,11 @@ import time
 import threading
 from datetime import datetime
 
-# Global variables to track scraping progress
+# Global variables to track scraping status
 scraping_status = {
     'is_scraping': False,
     'current_data': None,
-    'error': None,
-    'progress': 0,
-    'message': '',
-    'start_time': None
+    'error': None
 }
 
 app = Flask(__name__)
@@ -35,65 +32,13 @@ os.makedirs('data', exist_ok=True)
 def index():
     return jsonify({'status': 'API is running'})
 
-@app.route('/api/status')
-def get_progress():
-    """Get the current scraping progress"""
-    global scraping_status
-    
-    if scraping_status['error']:
-        return jsonify({
-            'progress': scraping_status['progress'],
-            'message': f"Error: {scraping_status['error']}",
-            'error': True
-        })
-    
-    if scraping_status['current_data']:
-        return jsonify({
-            'progress': 100,
-            'message': 'Complete!',
-            'done': True
-        })
-    
-    if not scraping_status['is_scraping']:
-        return jsonify({
-            'progress': 0,
-            'message': 'Not started',
-            'done': False
-        })
-    
-    elapsed_time = time.time() - scraping_status['start_time'] if scraping_status['start_time'] else 0
-    
-    if elapsed_time < 2:
-        message = "Initializing scraper..."
-        progress = 5
-    elif elapsed_time < 5:
-        message = "Connecting to websites..."
-        progress = 15
-    elif elapsed_time < 10:
-        message = "Searching for properties..."
-        progress = 30
-    elif elapsed_time < 20:
-        message = "Fetching property listings..."
-        progress = 50
-    else:
-        message = "Processing data..."
-        progress = min(90, int(elapsed_time / 30 * 100))
-    
-    scraping_status['progress'] = progress
-    scraping_status['message'] = message
-    
-    return jsonify({
-        'progress': progress,
-        'message': message,
-        'done': False
-    })
+
 
 def run_scraper():
     """Run the scraper in a separate thread"""
     global scraping_status
     try:
         scraping_status['is_scraping'] = True
-        scraping_status['start_time'] = time.time()
         data = scrape_real_estate(scraping_status.get('api_key'))
         
         # Save the data with timestamp
