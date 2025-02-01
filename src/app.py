@@ -1,6 +1,6 @@
-from flask import Flask, jsonify, render_template, request, Response
+from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
-from scraper import scrape_real_estate
+from .scraper import scrape_real_estate
 import json
 import os
 import time
@@ -28,7 +28,7 @@ os.makedirs('data', exist_ok=True)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return jsonify({'status': 'API is running'})
 
 def generate_progress():
     """Generator function to yield real progress updates"""
