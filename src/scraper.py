@@ -27,7 +27,7 @@ def scrape_real_estate(api_key):
         'prompt': 'Ensure that the address is always included for each commercial real estate listing. Extract the number of units available, square footage, URL of the listing, contact information, and price.',
         'schema': ExtractSchema.model_json_schema(),
         'urls': [
-            "https://property.jll.com/search?tenureType=rent&propertyTypes=office&orderBy=desc&searchInput=New%20York&sortBy=dateModified",
+            "https://property.jll.com/search?tenureType=rent&propertyTypes=office&orderBy=desc&sortBy=dateModified",
         ]
     }
     
