@@ -27,7 +27,7 @@ def scrape_real_estate(api_key):
         'prompt': 'Ensure that the address is always included for each commercial real estate listing. Extract the number of units available, square footage, URL of the listing, contact information, and price.',
         'schema': ExtractSchema.model_json_schema(),
         'urls': [
-            "https://www.lee-associates.com/properties/?searchText=&propertyType=1&saleOrLease=lease",
+            "https://property.jll.com/search?tenureType=rent&propertyTypes=office&orderBy=desc&searchInput=New%20York&sortBy=dateModified",
         ]
     }
     
@@ -40,7 +40,7 @@ def scrape_real_estate(api_key):
     try:
         # Log the request details
         request_urls = [
-            "https://www.lee-associates.com/properties/?searchText=&propertyType=1&saleOrLease=lease"
+            "https://property.jll.com/search?tenureType=rent&propertyTypes=office&orderBy=desc&sortBy=dateModified"
         ]
         request_prompt = 'Extract all commercial real estate listings. For each listing, get the address, number of units available, square footage, URL, contact information, and price.'
         logging.info(f'Making request to URLs: {request_urls}')
